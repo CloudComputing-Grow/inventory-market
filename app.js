@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+const inventoryRouter = require('./routes/inventory');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -10,6 +11,9 @@ app.use((req, res, next) => {
   req.user = { user_id: 1 }; 
   next();
 });
+
+// 인벤토리 라우터 설정
+app.use('/api/v1/inventory', inventoryRouter);
 
 // 서버 정상 작동 확인
 app.get('/', (req, res) => {
