@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const inventoryRouter = require('./routes/inventory');
+const marketRouter = require('./routes/market');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -14,6 +15,8 @@ app.use((req, res, next) => {
 
 // 인벤토리 라우터 설정
 app.use('/api/v1/inventory', inventoryRouter);
+// 마켓 라우터 설정
+app.use('/api/v1/market', marketRouter);
 
 // 서버 정상 작동 확인
 app.get('/', (req, res) => {
