@@ -13,6 +13,10 @@ const inventoryModel = {
     `, [userId]);
   },
 
+  deleteItem: async (itemId) => {
+  return await promisePool.query('DELETE FROM inventory_item WHERE item_id = ?', [itemId]);
+  },
+
   getItemByUserIdAndType: async (userId, itemTypeId) => {
     return await promisePool.query(
       'SELECT item_id, quantity FROM inventory_item WHERE user_id = ? AND item_type_id = ?',
@@ -42,10 +46,6 @@ const inventoryModel = {
       VALUES (?, ?, ?)
       ON DUPLICATE KEY UPDATE quantity = quantity + ?
     `, [userId, itemTypeId, qty, qty]);
-  },
-
-  deleteItem: async (itemId) => {
-    return await promisePool.query('DELETE FROM inventory_item WHERE item_id = ?', [itemId]);
   },
 
   deductMarketQty: async (qty, itemId) => {
