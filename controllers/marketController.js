@@ -1,8 +1,9 @@
 const marketModel = require('../models/marketModel');
+const inventoryModel = require('../models/inventoryModel');//인벤토리 슬롯 수 체크해야 함
 
 const marketController = {
   createListing: async (req, res) => {
-    const sellerId = req.headers['x-user-id'] || 1;
+    const sellerId = req.headers['x-user-id'];
     const { itemTypeId, qty } = req.body; 
 
     if (!itemTypeId || !qty) {
@@ -18,12 +19,17 @@ const marketController = {
 
       await marketModel.deductInventoryQty(qty, itemRow.item_id);
 
-      const [result] = await marketModel.insertMarketListing(sellerId, itemTypeId);
+      // 낱개 등록 모델 구조에 맞게 수량(qty)만큼 반복문을 돌려 1개짜리 글을 여러 개 만듬
+      let lastInsertId = null;
+      for (let i = 0; i < Number(qty); i++) {
+        const [result] = await marketModel.insertMarketListing(sellerId, itemTypeId);
+        lastInsertId = result.insertId;
+      }
 
       return res.json({
         success: true,
         data: {
-          post_id: result.insertId,
+          post_id: lastInsertId,
           message: "마켓에 과일이 성공적으로 등록되었습니다."
         }
       });
@@ -34,7 +40,7 @@ const marketController = {
   },
 
   exchange: async (req, res) => {
-    const buyerId = req.headers['x-user-id'] || 2; 
+    const buyerId = req.headers['x-user-id']; 
     const { postId } = req.body; 
 
     if (!postId) {
@@ -55,6 +61,10 @@ const marketController = {
       }
 
       const [[buyerItemRow]] = await marketModel.getBuyerItem(buyerId, postRow.item_type_id);
+      const [slotCount] = await inventoryModel.getSlotCountByUserId(buyerId);
+      if (!buyerItemRow && slotCount[0].count >= 20) {
+        return res.status(400).json({ success: false, error_code: "INV_FULL", message: "인벤토리가 가득 차서 교환품을 받을 수 없습니다." });
+      }
       const currentQty = buyerItemRow ? buyerItemRow.quantity : 0;
       
       if (currentQty + 1 > 30) { 
@@ -81,7 +91,7 @@ const marketController = {
   },
 
   cancel: async (req, res) => {
-    const userId = req.headers['x-user-id'] || 1;
+    const userId = req.headers['x-user-id'];
     const { postId } = req.body;
 
     if (!postId) {

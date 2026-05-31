@@ -44,6 +44,10 @@ const inventoryModel = {
     `, [userId, itemTypeId, qty, qty]);
   },
 
+  deleteItem: async (itemId) => {
+    return await promisePool.query('DELETE FROM inventory_item WHERE item_id = ?', [itemId]);
+  },
+
   deductMarketQty: async (qty, itemId) => {
     return await promisePool.query('UPDATE inventory_item SET quantity = quantity - ? WHERE item_id = ?', [qty, itemId]);
   }
