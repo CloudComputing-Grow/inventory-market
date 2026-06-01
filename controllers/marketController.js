@@ -1,7 +1,44 @@
 const marketModel = require('../models/marketModel');
-const inventoryModel = require('../models/inventoryModel');//인벤토리 슬롯 수 체크해야 함
+const inventoryModel = require('../models/inventoryModel');
+const axios = require('axios');
+
+const USER_SERVER_URL = process.env.USER_SERVER_URL || 'http://localhost:3000';
 
 const marketController = {
+  getListings: async (req, res) => {
+    try {
+      const [listings] = await marketModel.getMarketListings();
+
+      // 판매자 닉네임 bulk 조회
+      const sellerIds = [...new Set(listings.map(l => l.seller_id))];
+      let nicknameMap = {};
+
+      if (sellerIds.length > 0) {
+        try {
+          const nicknameRes = await axios.post(
+            `${USER_SERVER_URL}/api/internal/v1/users/nicknames`,
+            { userIds: sellerIds }
+          );
+          nicknameRes.data.data.forEach(u => {
+            nicknameMap[u.userId] = u.nickname;
+          });
+        } catch (err) {
+          console.error('유저 닉네임 조회 실패 (무시):', err.message);
+        }
+      }
+
+      const result = listings.map(l => ({
+        ...l,
+        nickname: nicknameMap[l.seller_id] || null
+      }));
+
+      return res.json({ success: true, data: { listings: result } });
+    } catch (error) {
+      console.error('마켓 목록 조회 오류:', error);
+      return res.status(500).json({ success: false, error_code: "SERVER_ERROR" });
+    }
+  },
+
   createListing: async (req, res) => {
     const sellerId = req.headers['x-user-id'];
     const { itemTypeId, qty } = req.body; 

@@ -3,7 +3,10 @@ const router = express.Router();
 const marketController = require('../controllers/marketController');
 const verifyUser = require('../middlewares/auth');
 
-// 과일 등록 
+// GET : /api/v1/market
+router.get('/', verifyUser, marketController.getListings);
+
+// 과일 등록
 // POST : /api/v1/market/listings
 router.post('/listings',verifyUser, marketController.createListing);
 
