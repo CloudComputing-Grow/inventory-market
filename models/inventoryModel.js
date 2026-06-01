@@ -3,13 +3,16 @@ const promisePool = require('../db/db');
 const inventoryModel = {
   getInventoryByUserId: async (userId) => {
     return await promisePool.query(`
-      SELECT 
-        item_id as slot, 
-        item_type_id as type, 
-        quantity as qty
-      FROM inventory_item
-      WHERE user_id=?
-      ORDER BY item_id
+      SELECT
+        i.item_id as slot,
+        i.item_type_id as type,
+        i.quantity as qty,
+        m.item_name,
+        m.category
+      FROM inventory_item i
+      JOIN item_type_master m ON i.item_type_id = m.item_type_id
+      WHERE i.user_id = ?
+      ORDER BY i.item_id
     `, [userId]);
   },
 
