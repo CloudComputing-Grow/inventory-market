@@ -19,6 +19,13 @@ const marketModel = {
     `);
   },
 
+  getItemTypeById: async (itemTypeId) => {
+    return await promisePool.query(
+      'SELECT category FROM item_type_master WHERE item_type_id = ?',
+      [itemTypeId]
+    );
+  },
+
   getItemByUserIdAndType: async (sellerId, itemTypeId) => {
     return await promisePool.query(
       'SELECT item_id, quantity FROM inventory_item WHERE user_id = ? AND item_type_id = ?',

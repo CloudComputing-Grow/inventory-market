@@ -48,6 +48,12 @@ const marketController = {
     }
 
     try {
+      // 황금 과일 등록 불가 체크
+      const [[itemType]] = await marketModel.getItemTypeById(itemTypeId);
+      if (itemType && itemType.category === 'GOLD_FRUIT') {
+        return res.status(400).json({ success: false, error_code: "CANNOT_REGISTER_GOLD_FRUIT", message: "황금 과일은 마켓에 등록할 수 없습니다." });
+      }
+
       const [[itemRow]] = await marketModel.getItemByUserIdAndType(sellerId, itemTypeId);
 
       if (!itemRow || itemRow.quantity < qty) {
