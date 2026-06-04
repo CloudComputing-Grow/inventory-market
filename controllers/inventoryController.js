@@ -46,11 +46,9 @@ const inventoryController = {
           growthStatusId: growthStatusId || 1,
           changedRate: 20,
           reason: "FERTILIZER"
-        },
-        {
-          headers: { 'x-user-id': String(userId) }
-        }
-      );
+        }, {
+          headers: { 'X-User-Id': String(userId) }
+        });
       } catch (growthError) {
         console.error('Growth 서버 연동 실패:', growthError.message);
         await inventoryModel.recoverItemQuantity(itemRow.item_id);
