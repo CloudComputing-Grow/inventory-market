@@ -2,7 +2,7 @@ const inventoryModel = require('../models/inventoryModel');
 const promisePool = require('../db/db');
 const axios = require('axios');
 
-const GROWTH_SERVER_URL = process.env.GROWTH_SERVER_URL || 'http://localhost:3001';
+const GROWTH_SERVER_URL = process.env.GROWTH_SERVER_URL || 'http://localhost:3005';
 const MISSION_SERVER_URL = process.env.MISSION_SERVER_URL || 'http://localhost:3003';
 
 const inventoryController = {
@@ -45,8 +45,12 @@ const inventoryController = {
         await axios.post(`${GROWTH_SERVER_URL}/api/v1/growth-diary/growth-rate`, {
           growthStatusId: growthStatusId || 1,
           changedRate: 20,
-          reason: "MISSION"
-        });
+          reason: "FERTILIZER"
+        },
+        {
+          headers: { 'x-user-id': String(userId) }
+        }
+      );
       } catch (growthError) {
         console.error('Growth 서버 연동 실패:', growthError.message);
         await inventoryModel.recoverItemQuantity(itemRow.item_id);
