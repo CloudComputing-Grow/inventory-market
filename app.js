@@ -83,7 +83,7 @@ async function connectRabbitMQ() {
 
 connectRabbitMQ();
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3004;
 app.listen(PORT, () => {
   console.log(`인벤토리-마켓 서버가 ${PORT}번 포트에서 가동 중입니다!`);
 });

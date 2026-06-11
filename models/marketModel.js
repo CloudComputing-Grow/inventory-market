@@ -1,6 +1,31 @@
 const promisePool = require('../db/db');
 
 const marketModel = {
+  getMarketListings: async () => {
+    return await promisePool.query(`
+      SELECT
+        ml.post_id,
+        ml.seller_id,
+        ml.item_type_id,
+        ml.status,
+        ml.reg_date,
+        m.item_name,
+        m.category,
+        DATEDIFF(DATE_ADD(DATE(ml.reg_date), INTERVAL 30 DAY), CURDATE()) AS dday
+      FROM market_listing ml
+      JOIN item_type_master m ON ml.item_type_id = m.item_type_id
+      WHERE ml.status = 'ACTIVE'
+      ORDER BY ml.reg_date DESC
+    `);
+  },
+
+  getItemTypeById: async (itemTypeId) => {
+    return await promisePool.query(
+      'SELECT category FROM item_type_master WHERE item_type_id = ?',
+      [itemTypeId]
+    );
+  },
+
   getItemByUserIdAndType: async (sellerId, itemTypeId) => {
     return await promisePool.query(
       'SELECT item_id, quantity FROM inventory_item WHERE user_id = ? AND item_type_id = ?',

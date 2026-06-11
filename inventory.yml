@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grow-inventory-deployment
+  labels:
+    app: grow-inventory
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: grow-inventory
+  template:
+    metadata:
+      labels:
+        app: grow-inventory
+    spec:
+      containers:
+      - name: grow-inventory-container
+        image: yumyummm/inventory-market:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3004
+        envFrom:
+        - configMapRef:
+            name: grow-inventory-config
+        - secretRef:
+            name: grow-inventory-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-market
+spec:
+  type: ClusterIP
+  selector:
+    app: grow-inventory
+  ports:
+    - protocol: TCP
+      port: 3004
+      targetPort: 3004
