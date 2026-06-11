@@ -19,9 +19,7 @@ const marketController = {
             `${USER_SERVER_URL}/api/internal/v1/users/nicknames`,
             { userIds: sellerIds }
           );
-          nicknameRes.data.data.forEach(u => {
-            nicknameMap[u.userId] = u.nickname;
-          });
+          nicknameMap = nicknameRes.data;
         } catch (err) {
           console.error('유저 닉네임 조회 실패 (무시):', err.message);
         }
